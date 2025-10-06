@@ -70,7 +70,7 @@ export const BudgetBreakdown: React.FC<BudgetBreakdownProps> = ({ budgetData }) 
           </div>
           {budgetData.remainingForSavings < budgetData.rule.savings && (
             <div className="text-xs text-red-500 font-semibold mt-1">
-              Short by ${(budgetData.rule.savings - budgetData.remainingForSavings).toFixed(0)} 💸
+              Short by ${(budgetData.rule.savings - budgetData.remainingForSavings).toFixed(0)}
             </div>
           )}
         </div>
@@ -98,9 +98,9 @@ export const BudgetBreakdown: React.FC<BudgetBreakdownProps> = ({ budgetData }) 
         </div>
       </div>
       <div className="flex justify-between text-xs text-gray-500 mt-2">
-        <span>Needs</span>
-        <span>Wants</span>
-        <span>Savings</span>
+        <span className='flex items-center'>Needs <span className='ml-1 inline-block h-2 w-2 rounded-full bg-green-500'></span></span>
+        <span className='flex items-center'>Wants <span className='ml-1 inline-block h-2 w-2 rounded-full bg-orange-500'></span></span>
+          <span className='flex items-center'>Savings<span className='ml-1 inline-block h-2 w-2 rounded-full bg-blue-500'></span></span>
       </div>
     </div>
   );

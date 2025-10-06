@@ -100,7 +100,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                 }`} 
                 colSpan={2}
               >
-                {budgetData.remainingForSavings >= 0 ? 'Left for Savings 💰' : 'Over Budget 😬'}
+                {budgetData.remainingForSavings >= 0 ? 'Left for Savings' : 'Over Budget 😬'}
               </td>
               <td 
                 className={`py-4 px-4 text-right ${

@@ -21,7 +21,7 @@ export default function Home() {
     value: budgetData || { message: "No budget created yet" }
   });
 
-  // Action: Update monthly income
+  // Update monthly income
   useCopilotAction({
     name: "updateIncome",
     description: "Update the user's monthly income",
@@ -39,7 +39,7 @@ export default function Home() {
     }
   });
 
-  // Action: Add or update expense
+  // Add or update expense
   useCopilotAction({
     name: "updateExpense",
     description: "Add or update an expense category",
@@ -59,25 +59,11 @@ export default function Home() {
     ],
     handler: async ({ category, amount }) => {
       updateExpense(category, amount);
-      
-      // // Provide sassy feedback based on amount
-      // let response = `Got it! ${category} set to $${amount}/month. `;
-      
-      // if (category === 'diningOut' && amount > 150) {
-      //   response += "That's a lot of DoorDash bestie 💀";
-      // } else if (category === 'shopping' && amount > 200) {
-      //   response += "Okay I see you shopping 👀";
-      // } else if (category === 'subscriptions' && amount > 50) {
-      //   response += "Do you even use all those subscriptions tho? 🤔";
-      // } else {
-      //   response += "Looking good! 💅";
-      // }
-      
-      // return response;
+      return `${category} updated to $${amount}/month!`;
     }
   });
 
-  // Action: Delete expense
+  // Delete expense
   useCopilotAction({
     name: "deleteExpense",
     description: "Remove an expense category from the budget",
@@ -95,7 +81,7 @@ export default function Home() {
     }
   });
 
-  // Action: Provide budget suggestions
+  // Provide budget suggestions
   useCopilotAction({
     name: "provideSuggestion",
     description: "Analyze the budget and provide a specific suggestion for improvement",
@@ -112,11 +98,6 @@ export default function Home() {
         return "Create a budget first by telling me your income and expenses!";
       }
 
-      const needsCategories = ['rent', 'groceries', 'transportation'];
-      const currentNeeds = needsCategories.reduce(
-        (sum, cat) => sum + (budgetData.expenses[cat] || 0), 
-        0
-      );
       const wantsCategories = ['subscriptions', 'diningOut', 'shopping', 'entertainment', 'other'];
       const currentWants = wantsCategories.reduce(
         (sum, cat) => sum + (budgetData.expenses[cat] || 0), 
@@ -138,11 +119,11 @@ export default function Home() {
         // General suggestions
         if (currentWants > budgetData.rule.wants) {
           const overage = currentWants - budgetData.rule.wants;
-          suggestion = `You're spending $${overage.toFixed(0)} too much on wants! Try cutting back on dining out and shopping to hit your 30% target. Small changes = big savings bestie! 💸`;
+          suggestion = `You're spending $${overage.toFixed(0)} too much on wants! Try cutting back on dining out and shopping to hit your 30% target.`;
         } else if (budgetData.remainingForSavings < budgetData.rule.savings) {
-          suggestion = `You're short on your savings goal! Try the 52-week challenge: save $1 week 1, $2 week 2, etc. You'll save $1,378 by the end! 🎯`;
+          suggestion = `You're short on your savings goal! Try the 52-week challenge: save $1 week 1, $2 week 2, etc. You'll save $1,378 by the end.`;
         } else {
-          suggestion = `You're doing great! Your budget is balanced. Keep tracking and you'll hit your goals no cap! 🔥`;
+          suggestion = `You're doing great! Your budget is balanced. Keep tracking and you'll hit your goals fr`;
         }
       }
 
@@ -150,7 +131,7 @@ export default function Home() {
     }
   });
 
-  // Action: What-if scenario
+  // A What-if scenario
   useCopilotAction({
     name: "whatIfScenario",
     description: "Show what would happen if user changes a specific expense",
@@ -181,15 +162,15 @@ export default function Home() {
     }
   });
 
-// Action: Roast user's spending habits
-useCopilotAction({
+  // Roast user's spending habits
+  useCopilotAction({
   name: "roastUserSpendingHabits",
-  description: "Generate a hilarious but helpful roast of the user's spending and saving habits based on their budget data. Analyze their worst spending categories and savings rate to create a personalized roast.",
+  description: "Generate a savage but helpful roast of the user's spending and saving habits based on their budget data. Analyze their worst spending categories and savings rate to create a personalized roast",
   parameters: [
     {
       name: "roasts",
       type: "string",
-      description: "Intensity of the roast: 'gentle' (playful teasing), 'medium' (direct but funny), or 'savage' (unhinged, no holding back)",
+      description: "Savage roasts of the user's spending habits",
       required: false
     }
   ],
@@ -198,7 +179,7 @@ useCopilotAction({
       return "Bestie, I can't roast you yet - you haven't told me your budget! That's like showing up to a roast battle unarmed";
     }
 
-    // Calculate roast-worthy metrics
+    // Calculate metrics that are roast-worthy
     const wantsCategories = ['subscriptions', 'diningOut', 'shopping', 'entertainment', 'other'];
     const currentWants = wantsCategories.reduce(
       (sum, cat) => sum + (budgetData.expenses[cat] || 0), 
@@ -208,7 +189,7 @@ useCopilotAction({
     const savingsRate = (budgetData.remainingForSavings / budgetData.monthlyIncome) * 100;
     const wantsPercentage = (currentWants / budgetData.monthlyIncome) * 100;
     
-    // Find the worst offender
+    // Find the worst category worthy of roasting
     let worstCategory = { name: '', amount: 0, percentage: 0 };
     Object.entries(budgetData.expenses).forEach(([category, amount]) => {
       if (wantsCategories.includes(category) && amount > worstCategory.amount) {
@@ -274,7 +255,7 @@ useCopilotAction({
         - What-if scenarios: "what if I reduce groceries by 50%?"
         - Delete expenses: "remove shopping"
 
-        4. USER ROASTS: If the user is done with the budget, ask if they will like to be roasted
+        4. USER ROASTS: If the user is done with the budget and any other action, always ask if they will like to be roasted
 
         ACTIONS YOU CAN USE:
         - updateIncome: When user mentions income

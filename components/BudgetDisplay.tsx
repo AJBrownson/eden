@@ -101,6 +101,10 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
             <span className="text-green-500 font-bold">✓</span>
             <span>Ask &quot;What if I reduced groceries spending by 20%?&quot; to see instant projections</span>
           </li>
+           <li className="flex items-start gap-2">
+            <span className="text-green-500 font-bold">✓</span>
+            <span>Ask Ginny to roast your spending and savings habits. Be warned, she can be very savage</span>
+          </li>
         </ul>
       </div>
     </div>
