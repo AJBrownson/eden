@@ -68,15 +68,10 @@ export const useBudget = () => {
     });
   };
 
-  const resetBudget = () => {
-    setBudgetData(null);
-  };
-
   return {
     budgetData,
     updateIncome,
     updateExpense,
     deleteExpense,
-    resetBudget
   };
 };

@@ -1,20 +1,18 @@
 "use client";
 
 import { BudgetData } from '@/types/budget';
-import { BudgetChart } from './BudgetChart';
+import { BudgetBreakdown } from './BudgetBreakdown';
 import { BudgetTable } from './BudgetTable';
-// import { Download, RefreshCw } from 'lucide-react';
+
 
 interface BudgetDisplayProps {
   budgetData: BudgetData | null;
   onDeleteExpense: (category: string) => void;
-  onReset: () => void;
 }
 
 export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({ 
   budgetData, 
   onDeleteExpense,
-  onReset 
 }) => {
   const exportToCSV = () => {
     if (!budgetData) return;
@@ -35,7 +33,7 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = 'ginny-budget.csv';
+    a.download = 'my-ginny-budget.csv';
     a.click();
   };
 
@@ -56,34 +54,28 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
 
   return (
     <div className="space-y-6 p-6">
-      {/* Header */}
-      <div className="bg-slate-500 p-6 text-white shadow-xl">
-        <div className="flex justify-between items-center">
+
+      <div className="bg-white p-6 text-black shadow-xl">
+        <div className="flex flex-col md:flex-row md:justify-between md:items-center">
           <div>
-            <h2 className="text-3xl font-bold mb-2">Your Budget</h2>
-            <p className="text-purple-100">
-              Monthly Income: <span className="font-bold text-2xl">${budgetData.monthlyIncome.toFixed(2)}</span>
+            <h2 className="text-3xl font-bold md:mb-2">Your Budget</h2>
+            <p className="text-black">
+              Monthly Income: <span className="font-medium text-2xl">${budgetData.monthlyIncome.toFixed(2)}</span>
             </p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex gap-3 mt-3 md:mt-0">
             <button
               onClick={exportToCSV}
-              className="flex items-center gap-2 bg-black px-4 py-2 rounded-lg font-semibold"
+              className="cursor-pointer flex items-center gap-2 bg-black text-white px-4 py-2 rounded-lg font-semibold"
             >
-              Export CSV
-            </button>
-            <button
-              onClick={onReset}
-              className="flex items-center gap-2 bg-white/20 backdrop-blur text-white px-4 py-2 rounded-lg font-semibold hover:bg-white/30 transition-colors"
-            >
-              Reset
+              Export to CSV
             </button>
           </div>
         </div>
       </div>
 
-      {/* Budget Chart */}
-      <BudgetChart budgetData={budgetData} />
+      {/* Budget Breakdown*/}
+      <BudgetBreakdown budgetData={budgetData} />
 
       {/* Budget Table */}
       <BudgetTable 
@@ -92,7 +84,7 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
       />
 
       {/* Tips Section */}
-      <div className="bg-gradient-to-r from-blue-50 to-purple-50 rounded-2xl p-6 border-2 border-blue-200">
+      <div className="bg-gradient-to-r from-blue-50 to-purple-50 p-6">
         <h3 className="text-xl font-bold text-gray-800 mb-3">
           💡 Pro Tips from Ginny
         </h3>
@@ -107,7 +99,7 @@ export const BudgetDisplay: React.FC<BudgetDisplayProps> = ({
           </li>
           <li className="flex items-start gap-2">
             <span className="text-green-500 font-bold">✓</span>
-            <span>Ask &quot;What if I reduced dining out by $50?&quot; to see instant projections</span>
+            <span>Ask &quot;What if I reduced groceries spending by 20%?&quot; to see instant projections</span>
           </li>
         </ul>
       </div>

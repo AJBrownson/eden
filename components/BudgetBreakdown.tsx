@@ -2,11 +2,11 @@
 
 import { BudgetData } from '@/types/budget';
 
-interface BudgetChartProps {
+interface BudgetBreakdownProps {
   budgetData: BudgetData;
 }
 
-export const BudgetChart: React.FC<BudgetChartProps> = ({ budgetData }) => {
+export const BudgetBreakdown: React.FC<BudgetBreakdownProps> = ({ budgetData }) => {
   const needsCategories = ['rent', 'groceries', 'transportation'];
   const wantsCategories = ['subscriptions', 'diningOut', 'shopping', 'entertainment', 'other'];
 
@@ -24,12 +24,12 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ budgetData }) => {
   const savingsPercentage = (budgetData.remainingForSavings / budgetData.monthlyIncome) * 100;
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg">
+    <div className="bg-white p-6 shadow-lg">
       <h3 className="text-2xl font-bold mb-6 text-gray-800">
         50/30/20 Rule Breakdown
       </h3>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div className="text-center p-4 bg-green-50 rounded-xl border-2 border-green-200">
           <div className="text-sm text-green-600 font-semibold mb-1">NEEDS (50%)</div>
           <div className="text-3xl font-bold text-green-700">
@@ -77,7 +77,7 @@ export const BudgetChart: React.FC<BudgetChartProps> = ({ budgetData }) => {
       </div>
 
       {/* Visual Bar */}
-      <div className="w-full h-12 flex rounded-lg overflow-hidden shadow-md">
+      <div className="w-full h-12 flex rounded-full overflow-hidden shadow-md">
         <div 
           className="bg-green-500 flex items-center justify-center text-white font-bold text-sm"
           style={{ width: `${needsPercentage}%` }}

@@ -19,9 +19,9 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-2xl p-6 shadow-lg">
+    <div className="bg-white p-6 shadow-lg">
       <h3 className="text-2xl font-bold mb-6 text-gray-800">
-        Expense Breakdown 📊
+        Expense Breakdown
       </h3>
 
       <div className="overflow-x-auto">
@@ -32,7 +32,7 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
               <th className="text-left py-3 px-4 font-semibold text-gray-700">Type</th>
               <th className="text-right py-3 px-4 font-semibold text-gray-700">Amount</th>
               <th className="text-right py-3 px-4 font-semibold text-gray-700">% of Income</th>
-              <th className="text-right py-3 px-4 font-semibold text-gray-700">Actions</th>
+              <th className="text-right py-3 px-4 font-semibold text-gray-700">Action</th>
             </tr>
           </thead>
           <tbody>
@@ -68,10 +68,10 @@ export const BudgetTable: React.FC<BudgetTableProps> = ({
                   <td className="py-3 px-4 text-right">
                     <button
                       onClick={() => onDeleteExpense(category)}
-                      className="text-red-500 hover:text-red-700 transition-colors p-2 hover:bg-red-50 rounded-lg"
+                      className="text-red-500 text-xs hover:text-red-700 transition-colors p-2 bg-red-50 rounded-lg cursor-pointer"
                       title="Delete expense"
                     >
-                      {/* <Trash2 size={18} /> */}
+                     Remove
                     </button>
                   </td>
                 </tr>
