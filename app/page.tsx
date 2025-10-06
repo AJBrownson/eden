@@ -1,103 +1,232 @@
-import Image from "next/image";
+"use client";
+
+import { CopilotSidebar } from "@copilotkit/react-ui";
+import { useCopilotAction, useCopilotReadable } from "@copilotkit/react-core";
+import "@copilotkit/react-ui/styles.css";
+import { BudgetDisplay } from "@/components/BudgetDisplay";
+import { useBudget } from "@/hooks/useBudget";
+
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const { 
+    budgetData, 
+    updateIncome, 
+    updateExpense, 
+    deleteExpense,
+    resetBudget 
+  } = useBudget();
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
+  // Make budget data readable to Copilot
+  useCopilotReadable({
+    description: "User's current budget data including income, expenses, and remaining savings",
+    value: budgetData || { message: "No budget created yet" }
+  });
+
+  // Action: Update monthly income
+  useCopilotAction({
+    name: "updateIncome",
+    description: "Update the user's monthly income",
+    parameters: [
+      {
+        name: "amount",
+        type: "number",
+        description: "Monthly income in dollars",
+        required: true
+      }
+    ],
+    handler: async ({ amount }) => {
+      updateIncome(amount);
+      return `Income updated to $${amount}/month! Let's start tracking your expenses.`;
+    }
+  });
+
+  // Action: Add or update expense
+  useCopilotAction({
+    name: "updateExpense",
+    description: "Add or update an expense category",
+    parameters: [
+      {
+        name: "category",
+        type: "string",
+        description: "Expense category (rent, groceries, transportation, subscriptions, diningOut, shopping, entertainment, other)",
+        required: true
+      },
+      {
+        name: "amount",
+        type: "number",
+        description: "Monthly amount spent in this category",
+        required: true
+      }
+    ],
+    handler: async ({ category, amount }) => {
+      updateExpense(category, amount);
+      
+      // Provide sassy feedback based on amount
+      let response = `Got it! ${category} set to $${amount}/month. `;
+      
+      if (category === 'diningOut' && amount > 150) {
+        response += "That's a lot of DoorDash bestie 💀";
+      } else if (category === 'shopping' && amount > 200) {
+        response += "Okay I see you shopping 👀";
+      } else if (category === 'subscriptions' && amount > 50) {
+        response += "Do you even use all those subscriptions tho? 🤔";
+      } else {
+        response += "Looking good! 💅";
+      }
+      
+      return response;
+    }
+  });
+
+  // Action: Delete expense
+  useCopilotAction({
+    name: "deleteExpense",
+    description: "Remove an expense category from the budget",
+    parameters: [
+      {
+        name: "category",
+        type: "string",
+        description: "Category to remove",
+        required: true
+      }
+    ],
+    handler: async ({ category }) => {
+      deleteExpense(category);
+      return `${category} removed from your budget!`;
+    }
+  });
+
+  // Action: Provide budget suggestions
+  useCopilotAction({
+    name: "provideSuggestion",
+    description: "Analyze the budget and provide a specific suggestion for improvement",
+    parameters: [
+      {
+        name: "category",
+        type: "string",
+        description: "Category to provide suggestion for (optional)",
+        required: false
+      }
+    ],
+    handler: async ({ category }) => {
+      if (!budgetData) {
+        return "Create a budget first by telling me your income and expenses!";
+      }
+
+      const needsCategories = ['rent', 'groceries', 'transportation'];
+      const currentNeeds = needsCategories.reduce(
+        (sum, cat) => sum + (budgetData.expenses[cat] || 0), 
+        0
+      );
+      const wantsCategories = ['subscriptions', 'diningOut', 'shopping', 'entertainment', 'other'];
+      const currentWants = wantsCategories.reduce(
+        (sum, cat) => sum + (budgetData.expenses[cat] || 0), 
+        0
+      );
+
+      let suggestion = "";
+
+      if (category) {
+        const amount = budgetData.expenses[category] || 0;
+        if (category === 'diningOut' && amount > 100) {
+          suggestion = `Try meal prepping on Sundays! You could cut your dining out from $${amount} to $80 and save $${(amount - 80).toFixed(0)}/month. That's $${((amount - 80) * 12).toFixed(0)}/year bestie! 💰`;
+        } else if (category === 'subscriptions' && amount > 30) {
+          suggestion = `Review all your subscriptions. Cancel the ones you haven't used in a month. You could probably cut this to $20 and save $${(amount - 20).toFixed(0)}/month! 📺`;
+        } else {
+          suggestion = `Your ${category} spending looks reasonable at $${amount}/month. Keep it up! 💪`;
+        }
+      } else {
+        // General suggestions
+        if (currentWants > budgetData.rule.wants) {
+          const overage = currentWants - budgetData.rule.wants;
+          suggestion = `You're spending $${overage.toFixed(0)} too much on wants! Try cutting back on dining out and shopping to hit your 30% target. Small changes = big savings bestie! 💸`;
+        } else if (budgetData.remainingForSavings < budgetData.rule.savings) {
+          suggestion = `You're short on your savings goal! Try the 52-week challenge: save $1 week 1, $2 week 2, etc. You'll save $1,378 by the end! 🎯`;
+        } else {
+          suggestion = `You're doing great! Your budget is balanced. Keep tracking and you'll hit your goals no cap! 🔥`;
+        }
+      }
+
+      return suggestion;
+    }
+  });
+
+  // Action: What-if scenario
+  useCopilotAction({
+    name: "whatIfScenario",
+    description: "Show what would happen if user changes a specific expense",
+    parameters: [
+      {
+        name: "category",
+        type: "string",
+        description: "Category to adjust",
+        required: true
+      },
+      {
+        name: "newAmount",
+        type: "number",
+        description: "New amount to test",
+        required: true
+      }
+    ],
+    handler: async ({ category, newAmount }) => {
+      if (!budgetData) {
+        return "Create a budget first!";
+      }
+
+      const currentAmount = budgetData.expenses[category] || 0;
+      const difference = currentAmount - newAmount;
+      const newSavings = budgetData.remainingForSavings + difference;
+
+      return `If you changed ${category} from $${currentAmount} to $${newAmount}:\n- You'd save $${difference.toFixed(2)}/month ($${(difference * 12).toFixed(2)}/year)\n- Your monthly savings would be $${newSavings.toFixed(2)}\n\nWant me to update it for real? Just say "update ${category} to $${newAmount}"! 💪`;
+    }
+  });
+
+  return (
+    <>
+      <CopilotSidebar
+        defaultOpen={true}
+        instructions={`You are Ginny, a Gen-Z financial advisor helping users create and manage their budget.
+
+        Your conversation flow:
+        1. GREETING: Ask about their monthly income first
+        2. EXPENSES: Ask about spending categories one at a time:
+        - rent, groceries, transportation, subscriptions, diningOut, shopping, entertainment, other
+        3. BUDGET UPDATES: User can ask you to:
+        - Adjust any expense: "change rent to $1200"
+        - Get suggestions: "how can I save money?"
+        - What-if scenarios: "what if I cut dining out by $50?"
+        - Delete expenses: "remove shopping"
+
+        ACTIONS YOU CAN USE:
+        - updateIncome: When user mentions income
+        - updateExpense: When user mentions any expense amount
+        - deleteExpense: When user wants to remove a category
+        - provideSuggestion: When user asks for advice
+        - whatIfScenario: When user asks "what if"
+
+        PERSONALITY:
+        - Use a sassy tone: Speak like a black american woman in her mid-twenties
+        - Use Gen-Z slang: "fam", "bestie", "no cap", "it's giving", "slay"
+        - React to high spending: "bestie that's a lot 💀", "okay I see you 👀"
+        - Be encouraging: "you got this! 💪", "slay your budget! 🔥"
+
+        Be conversational, helpful, and make budgeting fun!`}
+        labels={{
+          title: "Ginny",
+          initial: "Yo fam! I'm Ginny 👋 and I'm here to help you get your finances together. Let's start with the basics - what's your monthly income? (be honest, no judgment here)"
+        }}
+      >
+        <main className="flex-1 overflow-y-auto">
+          <div className="max-w-7xl mx-auto">
+            <BudgetDisplay 
+              budgetData={budgetData}
+              onDeleteExpense={deleteExpense}
+              onReset={resetBudget}
             />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+          </div>
+        </main>
+      </CopilotSidebar>
+    </>
   );
 }
