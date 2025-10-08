@@ -9,7 +9,7 @@ import { useBudget } from "@/hooks/useBudget";
 
 export default function Home() {
   const { 
-    budgetData, 
+    budgetData,
     updateIncome, 
     updateExpense, 
     deleteExpense
